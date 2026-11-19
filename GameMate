@@ -1,0 +1,98 @@
+const demoPlayers=[
+ {name:"ShadowWolf",game:"Fortnite",platform:"PC"},{name:"PixelMaster",game:"Minecraft",platform:"PC"},
+ {name:"NovaX",game:"Valorant",platform:"PC"},{name:"CraftKing",game:"Minecraft",platform:"PlayStation"},
+ {name:"Stormy",game:"Fortnite",platform:"Xbox"},{name:"BlockBuddy",game:"Roblox",platform:"Mobile"}
+];
+let currentFilter="Alle", accountMode="login";
+const $=s=>document.querySelector(s);
+function page(id){document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===id));document.querySelectorAll("nav [data-page]").forEach(b=>b.classList.toggle("selected",b.dataset.page===id));window.scrollTo({top:0,behavior:"smooth"});}
+document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>page(b.dataset.page)));
+document.querySelectorAll(".game-card").forEach(b=>b.addEventListener("click",()=>{$("#playerSearch").value=b.dataset.game;currentFilter="Alle";renderPlayers();page("players");}));
+function renderPlayers(){const q=($("#playerSearch").value||"").toLowerCase();const list=demoPlayers.filter(p=>(currentFilter==="Alle"||p.game===currentFilter)&&(`${p.name} ${p.game} ${p.platform}`).toLowerCase().includes(q));$("#playerList").innerHTML=list.length?list.map(p=>`<article class="player"><div class="avatar">🎮</div><div class="player-info"><b>${p.name}</b><small>${p.game} · ${p.platform}</small><span class="online">● Online (Demo)</span></div><button class="secondary" data-chat="${p.name}">Chat öffnen</button></article>`).join(""):"<p class='muted'>Keine passenden Spieler gefunden.</p>";document.querySelectorAll("[data-chat]").forEach(b=>b.addEventListener("click",()=>{ $("#chatUser").value=b.dataset.chat;renderMessages();page("chat");}));}
+$("#playerSearch").addEventListener("input",renderPlayers);
+$("#filters").addEventListener("click",e=>{const b=e.target.closest("[data-filter]");if(!b)return;currentFilter=b.dataset.filter;document.querySelectorAll(".filter").forEach(x=>x.classList.toggle("active",x===b));renderPlayers();});
+function getTeams(){return JSON.parse(localStorage.getItem("gm-teams")||"[]")}
+function renderTeams(){$("#teamList").innerHTML=getTeams().map(t=>`<div class="team">🏆 <b>${escapeHtml(t)}</b><div class="muted">Community-Team · lokal gespeichert</div></div>`).join("")||"<p class='muted'>Noch keine Teams. Erstelle dein erstes Team!</p>"}
+$("#teamForm").addEventListener("submit",e=>{e.preventDefault();const name=$("#teamName").value.trim();if(!name)return;const teams=getTeams();teams.push(name);localStorage.setItem("gm-teams",JSON.stringify(teams));$("#teamName").value="";renderTeams();});
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function getMsgs(){return JSON.parse(localStorage.getItem("gm-messages")||"{}")}
+function renderMessages(){const all=getMsgs(),msgs=all[$("#chatUser").value]||[];$("#messages").innerHTML=msgs.length?msgs.map(m=>`<div class="bubble">${escapeHtml(m)}</div>`).join(""):"<p class='muted'>Noch keine Nachrichten. Starte die Unterhaltung!</p>";}
+$("#chatUser").addEventListener("change",renderMessages);
+$("#messageForm").addEventListener("submit",e=>{e.preventDefault();const text=$("#messageInput").value.trim();if(!text)return;const all=getMsgs(),key=$("#chatUser").value;all[key]=all[key]||[];all[key].push(text);localStorage.setItem("gm-messages",JSON.stringify(all));$("#messageInput").value="";renderMessages();});
+$("#profileForm").addEventListener("submit",e=>{e.preventDefault();localStorage.setItem("gm-bio",$("#bio").value);localStorage.setItem("gm-platform",$("#platform").value);alert("Demo-Profil lokal gespeichert.");});
+document.querySelectorAll("[data-mode]").forEach(b=>b.addEventListener("click",()=>{accountMode=b.dataset.mode;document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===b));$("#accountTitle").textContent=accountMode==="login"?"Willkommen zurück!":"Werde Teil von GameMate!";$("#accountSubmit").textContent=accountMode==="login"?"Anmelden":"Registrieren";}));
+$("#accountBtn").addEventListener("click",()=>page("account"));
+$("#accountForm").addEventListener("submit",e=>{e.preventDefault();alert("Dies ist nur eine Vorschau. Echte Anmeldung wird erst mit einem sicheren Backend möglich.");});
+$("#profileName").textContent=localStorage.getItem("gm-username")||"Gast-Spieler";
+$("#bio").value=localStorage.getItem("gm-bio")||"Ich suche nette Mitspieler!";
+$("#platform").value=localStorage.getItem("gm-platform")||"PC";
+renderPlayers();renderTeams();renderMessages();
+🎮 GameMate
+Home Spielersuche Teams Chats Profil
+Anmelden
+DEINE GAMING-COMMUNITY
+Find your next teammate.
+Finde Leute für deine Lieblingsgames, gründe Teams und spielt gemeinsam.
+Mitspieler finden → Account erstellen
+ENTDECKEN
+Beliebte Spiele
+🪂FortniteMitspieler finden ⛏️MinecraftMitspieler finden 🎯ValorantMitspieler finden 🧱RobloxMitspieler finden
+👥
+Spieler finden
+Entdecke Leute, die dieselben Games spielen.
+💬
+In Kontakt bleiben
+Schreibe Nachrichten in dieser Demo-Oberfläche.
+🏆
+Teams gründen
+Stelle deine eigene Gaming-Gruppe zusammen.
+COMMUNITY
+Spielersuche
+Finde passende Mitspieler für deine nächste Runde.
+Alle Fortnite Minecraft Valorant Roblox
+
+ZUSAMMEN SPIELEN
+Teams
+Gründe ein Team für deine Community.
++ Team erstellen
+
+NACHRICHTEN
+Chats
+Wähle einen Demo-Chat aus und probiere die Oberfläche aus.
+Chat auswählen ShadowWolfPixelMasterNovaXCraftKingStormy
+Noch keine Nachrichten. Starte die Unterhaltung!
+Senden
+Demo: Nachrichten werden nur in diesem Browser gespeichert. Es gibt noch keinen echten Online-Chat.
+DEIN BEREICH
+Profil
+🎮
+Gast-Spieler
+Vorschau
+Über michIch suche nette Mitspieler! PlattformPCPlayStationXboxNintendo SwitchMobile Profil lokal speichern
+GAMEMATE ACCOUNT
+Willkommen zurück!
+AnmeldenRegistrieren
+Username Passwort Anmelden
+Wichtig: Dies ist nur eine Frontend-Demo. Es werden keine echten Konten erstellt und Passwörter nicht an einen Server gesendet. Für einen öffentlichen Start brauchen wir ein sicheres Backend mit verschlüsselter Passwortverwaltung.
+🎮 GameMatePLAY TOGETHER · BETA DEMO
+# GameMate
+
+Responsive Frontend-Demo einer Gaming-Community.
+
+## Lokal testen
+Öffne `index.html` im Browser oder starte einen lokalen Webserver.
+
+## Auf GitHub hochladen
+1. Öffne dein Repository `https://github.com/kitanovskileon80-ux/GameMate`.
+2. Wähle **Add file → Upload files**.
+3. Lade `index.html`, `style.css` und `app.js` hoch (README optional).
+4. Klicke **Commit changes**.
+
+## Mit GitHub Pages veröffentlichen
+1. Öffne im Repository **Settings → Pages**.
+2. Bei **Build and deployment** `Deploy from a branch` wählen.
+3. Branch `main` und Ordner `/ (root)` auswählen.
+4. **Save** klicken. Nach dem Deployment zeigt GitHub Pages die öffentliche URL an.
+
+## Wichtiger Hinweis
+Dies ist ausschließlich ein Frontend-Prototyp. Die Beispiel-Spieler sind fiktiv. Anmeldung/Registrierung ist noch nicht echt. Chats und Teams werden nur lokal im Browser gespeichert und sind nicht zwischen Nutzern synchronisiert. Vor einer öffentlichen Community werden ein Backend, sichere Authentifizierung, Datenbank, Moderation/Reporting und Datenschutzinformationen benötigt.
